@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Tine-lunsj!</title>
+    <meta charset="ISO-8859-1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <style>
+        #content {
+            max-width: 400px;
+            margin: 0 auto;
+            margin-top: 10px;
+            text-align: center;
+        }
+        #img {
+            display: none;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+      <h2>YES!</h2>
+      <img id="img" src="http://cdn.meme.am/instances/63743501.jpg" width="100%" alt="Congratz!">
+      <h3>Du klarte det, gratulerer.</h3>
+    </div>
+  </body>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+  var imgs = [
+    'http://cdn.meme.am/instances/63743501.jpg',
+    'http://s2.quickmeme.com/img/fe/fe92412d0d44c3c1e39eba68774bb5e4ff390935fbefc38f9084b93b6e557509.jpg',
+    'http://cdn.smosh.com/sites/default/files/styles/large/public/minion-cake-nailed-it-th.jpg?itok=6_A2gXFW',
+    'http://i.dailymail.co.uk/i/pix/2015/01/27/251266B000000578-2927468-The_Nailed_It_meme_sees_users_share_their_poor_attempts_at_DIY_c-a-9_1422353722718.jpg',
+    'http://files.shandymedia.com/images/body/thesavory/weknowmemes.com_.jpg',
+    'http://www.connectkorea.com/wp-content/uploads/2013/05/north-korea-meme-food-1.jpg',
+    'http://cdn.meme.am/instances/400x/56456552.jpg',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQz7xSVWGgRqG97ouCYomvGTVGMX9TjBZzCGJ45j_S1UdkNH8DV'
+  ];
+
+  $(document).ready(function() {
+    $('#img').attr('src', imgs[Math.floor(Math.random()*imgs.length)]);
+    $('#img').show();
+  });
+  </script>
+</html>

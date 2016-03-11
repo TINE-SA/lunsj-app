@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Tine-lunsj!</title>
+    <meta charset="ISO-8859-1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <style>
+		body {
+			max-width: 400px;
+			margin-left: 10px;
+			margin-top: 10px;
+		}
+    </style>
+  </head>
+  <body>
+        <form method="post" role="form">
+          <fieldset>
+            <legend>Din bestilling:</legend>
+                <div class="form-group">
+                        <label for="name">Navn:</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Kong Harald">
+                </div>
+                <div class="form-group">
+                        <label for="order">Mat:</label>
+                        <input type="text" class="form-control" id="order" name="order" placeholder="Raspeballer">
+                </div>
+                <div class="form-group">
+                        <label for="size">Str:</label>
+                        <input type="text" class="form-control" id="size" name="size" placeholder="Liten/Stor">
+                </div>
+            <button type="submit" class="btn btn-default">Bestill!</button>
+          </fieldset>
+        </form>
+        </body>
+</html>
