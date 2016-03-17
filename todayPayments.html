@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Tine-lunsj!</title>
+        <meta charset="ISO-8859-1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <style>
+            body {
+                max-width: 400px;
+                margin-left: 10px;
+                margin-top: 10px;
+            }
+
+            #content {
+                display: none;
+            }
+
+            .glyphicon.spinning {
+                animation: spin 1s infinite linear;
+                -webkit-animation: spin2 1s infinite linear;
+            }
+
+            @keyframes spin {
+                from { transform: scale(1) rotate(0deg); }
+                to { transform: scale(1) rotate(360deg); }
+            }
+
+            @-webkit-keyframes spin2 {
+                from { -webkit-transform: rotate(0deg); }
+                to { -webkit-transform: rotate(360deg); }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="loader">
+            <span class="glyphicon glyphicon-refresh spinning"></span>
+        </div>
+        <div id="content">
+            <ul id="list">
+            </ul>
+        </div>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.get("/tine-lunsj/todayOrders", function( data ) {
+                for(var i = 0; i < data.length; i++) {
+                    var item = data[i];
+                    $("#list").append("<li>@" + item.name + " - " + item.price + "</li>");
+                }
+                $("#loader").hide();
+                $("#content").show();
+            });
+        });
+    </script>
+</html>

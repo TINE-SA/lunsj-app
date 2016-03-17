@@ -10,26 +10,86 @@
 			margin-left: 10px;
 			margin-top: 10px;
 		}
+
+        #content {
+            display: none;
+        }
+
+        #price {
+            display: none;
+        }
+
+        .glyphicon.spinning {
+            animation: spin 1s infinite linear;
+            -webkit-animation: spin2 1s infinite linear;
+        }
+
+        @keyframes spin {
+            from { transform: scale(1) rotate(0deg); }
+            to { transform: scale(1) rotate(360deg); }
+        }
+
+        @-webkit-keyframes spin2 {
+            from { -webkit-transform: rotate(0deg); }
+            to { -webkit-transform: rotate(360deg); }
+        }
     </style>
   </head>
   <body>
+    <div>
         <form method="post" role="form">
           <fieldset>
             <legend>Din bestilling:</legend>
                 <div class="form-group">
-                        <label for="name">Navn:</label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Kong Harald">
+                        <label for="name">Brukernavn (slack):</label>
+                        <div class="input-group">
+                          <span class="input-group-addon" id="basic-addon1">@</span>
+                          <input type="text" class="form-control" id="name" name="name" placeholder="dagros" aria-describedby="basic-addon1">
+                        </div>
                 </div>
-                <div class="form-group">
-                        <label for="order">Mat:</label>
-                        <input type="text" class="form-control" id="order" name="order" placeholder="Raspeballer">
+                <div id="loader">
+                    <span class="glyphicon glyphicon-refresh spinning"></span>
                 </div>
-                <div class="form-group">
-                        <label for="size">Str:</label>
-                        <input type="text" class="form-control" id="size" name="size" placeholder="Liten/Stor">
+                <div id="content">
+                    <div class="form-group">
+                            <label for="order">Mat:</label>
+                            <select class="form-control" id="order" name="order">
+                                <option value="" disabled selected>-</option>
+                            </select>
+                    </div>
+                    <div class="form-group">
+                            <label for="price-label">Pris:</label>
+                            <input type="text" class="form-control" id="price-label" name="price-label" placeholder="" disabled>
+                    </div>
+                    <input type="text" class="form-control" id="price" name="price" placeholder="">
                 </div>
             <button type="submit" class="btn btn-default">Bestill!</button>
           </fieldset>
         </form>
-        </body>
+    </div>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.get("/tine-lunsj/menuItems", function(data) {
+                data.sort(function(a, b){
+                    var x = a.name.toLowerCase(); 
+                    var y = b.name.toLowerCase(); 
+                    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                });
+                for(var i = 0; i < data.length; i++) {
+                    var item = data[i];
+                    $("#order").append("<option data-price='" + item.price + "'>" + item.name + "</option>");
+                }
+                $("#loader").hide();
+                $("#content").show();
+            });
+
+            $("#order").change(function() {
+                var price = $("#order option:selected").data("price");
+                $("#price-label").val(price + " kr");
+                $("#price").val(price + " kr");
+            });
+        });
+    </script>
 </html>

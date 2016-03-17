@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Tine-lunsj!</title>
+        <meta charset="ISO-8859-1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <style>
+    		body {
+    			max-width: 650px;
+                margin-left: 10px;
+    		}
+
+            #content {
+                display: none;
+            }
+
+            #content h2 {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .glyphicon.spinning {
+                animation: spin 1s infinite linear;
+                -webkit-animation: spin2 1s infinite linear;
+            }
+
+            @keyframes spin {
+                from { transform: scale(1) rotate(0deg); }
+                to { transform: scale(1) rotate(360deg); }
+            }
+
+            @-webkit-keyframes spin2 {
+                from { -webkit-transform: rotate(0deg); }
+                to { -webkit-transform: rotate(360deg); }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="loader">
+            <span class="glyphicon glyphicon-refresh spinning"></span>
+        </div>
+        <div id="content">
+            <h2>Fredagslønsj!</h2>
+            <table class="table table-striped table-bordered">
+                <col width="70%">
+                <col width="30%">
+                <thead>
+                  <tr class="info">
+                    <th>Hva</th>
+                    <th>Hvem</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.get("/tine-lunsj/todayOrders", function( data ) {
+                for(var i = 0; i < data.length; i++) {
+                    var item = data[i];
+                    $("#tableBody").append("<tr><td>" + item.order + "</td><td>" + item.name + "</td></tr>");
+                }
+                $("#loader").hide();
+                $("#content").show();
+            });
+        });
+    </script>
+</html>
