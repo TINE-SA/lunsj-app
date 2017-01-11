@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
 
 var orders = [];
 var menuItems = [];
@@ -49,6 +50,7 @@ app.post('/tine-lunsj', function (req, res) {
 			timestamp: new Date()
 		};
 		orders.push(map);
+    io.emit('bestilling', JSON.stringify(map));
 		res.sendfile(__dirname + '/success.html');
 	}
 });
@@ -68,7 +70,7 @@ app.post('/tine-lunsj/menuItem', function (req, res) {
 		menuItems.push(map);
 		fs.appendFile(__dirname + '/menuItems.txt', map.name + '###' + map.price + '\n', function (err) {
 			if (err) {
-				console.log('something bad happen - deal with this later..');	
+				console.log('something bad happen - deal with this later..');
 			}
 		});
 		res.sendfile(__dirname + '/menuItemSuccess.html');
@@ -102,8 +104,12 @@ app.get('/tine-lunsj/allOrders', function (req, res) {
 	res.send(orders);
 });
 
-app.listen(5000, function () {
+var server = app.listen(5000, function () {
 	console.log('Example app listening on port 5000!');
 });
 
+var io = require('socket.io')(server);
 
+io.on('connection', function(socket){
+  console.log('a user connected');
+});

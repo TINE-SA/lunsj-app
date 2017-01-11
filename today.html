@@ -54,12 +54,15 @@
                 </tbody>
             </table>
         </div>
+
+        <ul id="status-messages"></ul>
         <a href="/tine-lunsj" class="btn btn-default hidden-print">Tilbake</a>
     </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script>
-        $(document).ready(function() {
+        function getTodayOrders() {
             $.get("/tine-lunsj/todayOrders", function( data ) {
+              $("#tableBody").empty();
                 for(var i = 0; i < data.length; i++) {
                     var item = data[i];
                     $("#tableBody").append("<tr><td>" + item.order + "</td><td>" + item.name + "</td></tr>");
@@ -67,6 +70,25 @@
                 $("#loader").hide();
                 $("#content").show();
             });
-        });
+        }
+
+        function showStatusMessage(msg) {
+          $("#status-messages").prepend($("<li>" + new Date().toTimeString().substr(0,8) + ": " + msg + "</li>"))
+        }
+
+        $(document).ready(getTodayOrders);
+    </script>
+
+    <script src="/node_modules/socket.io-client/socket.io.js"></script>
+    <script>
+      var socket = io();
+      socket.on('bestilling', function (msg) {
+        $("#loader").show();
+        getTodayOrders();
+
+        var messageObj = JSON.parse(msg);
+        var messageText = messageObj.name + " bestilte " + messageObj.order;
+        showStatusMessage(messageText);
+      });
     </script>
 </html>
