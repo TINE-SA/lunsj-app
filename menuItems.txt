@@ -15,10 +15,6 @@ Thai wok med biff (stor)###69
 Thai wok med biff (liten)###59
 Thai wok med kylling (stor)###69
 Thai wok med kylling (liten)###59
-Sate wok med biff (stor)###69
-Sate wok med biff (liten)###59
-Sate wok med kylling (stor)###69
-Sate wok med kylling (liten)###59
 Panæng curry med kylling (stor)###69
 Panæng curry med kylling (liten)###59
 Baguett - ost og skinke###49
