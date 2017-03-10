@@ -93,7 +93,7 @@ app.get('/tine-lunsj/todayOrders', function (req, res) {
 	var ordersToday = [];
 	var today = new Date();
 	for (var i = 0; i < orders.length; i++) {
-		if (orders[i].timestamp.getDate() == today.getDate()) {
+		if (orders[i].timestamp.toLocaleDateString() == today.toLocaleDateString()) {
 			ordersToday.push(orders[i]);
 		}
 	}
