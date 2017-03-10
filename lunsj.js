@@ -104,7 +104,7 @@ app.get('/tine-lunsj/allOrders', function (req, res) {
 	res.send(orders);
 });
 
-var server = app.listen(5000, function () {
+var server = app.listen((process.env.PORT || 5000), function () {
 	console.log('Example app listening on port 5000!');
 });
 
