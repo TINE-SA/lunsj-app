@@ -9,17 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vegardga/lunsj-app.git"
+    "url": "git+https://github.com/TINE-SA/lunsj-app.git"
   },
   "keywords": [
     "mat"
   ],
-  "author": "Vegard Gamnes",
+  "author": "TINE-SA",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/vegardga/lunsj-app/issues"
+    "url": "https://github.com/TINE-SA/lunsj-app/issues"
   },
-  "homepage": "https://github.com/vegardga/lunsj-app#readme",
+  "homepage": "https://github.com/TINE-SA/lunsj-app#readme",
   "dependencies": {
     "body-parser": "1.17.1",
     "express": "4.15.2",
