@@ -4,7 +4,8 @@
   "description": "Lunsj-app hos Tine",
   "main": "lunsj.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node lunsj.js"
   },
   "repository": {
     "type": "git",
