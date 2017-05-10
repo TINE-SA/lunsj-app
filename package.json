@@ -21,11 +21,13 @@
   },
   "homepage": "https://github.com/TINE-SA/lunsj-app#readme",
   "dependencies": {
-    "body-parser": "1.17.1",
-    "express": "4.15.2",
+    "azure-storage": "^2.1.0",
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "nconf": "^0.8.4",
     "socket.io": "1.7.3"
   },
-  "engines" : {
-    "node" : "6.3.x"
+  "engines": {
+    "node": "6.3.x"
   }
 }

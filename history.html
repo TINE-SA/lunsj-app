@@ -40,12 +40,14 @@
             <span class="glyphicon glyphicon-refresh spinning"></span>
         </div>
         <div id="content">
-            <h2>Fredagslønsj!</h2>
+            <h2>Fredagslønsj historikk!</h2>
             <table class="table table-striped table-bordered">
-                <col width="70%">
-                <col width="30%">
+                <col width="25%">
+                <col width="55%">
+                <col width="20%">
                 <thead>
                   <tr class="info">
+                    <th>Når</th>
                     <th>Hva</th>
                     <th>Hvem</th>
                   </tr>
@@ -60,12 +62,17 @@
     </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script>
-        function getTodayOrders() {
-            $.get("/tine-lunsj/todayOrders", function( data ) {
+        function getAllOrders() {
+            $.get("/tine-lunsj/allOrders", function( data ) {
               $("#tableBody").empty();
+                data.sort(function(a, b){
+                    var x = new Date(a.timestamp);
+                    var y = new Date(b.timestamp);
+                    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                });
                 for(var i = 0; i < data.length; i++) {
                     var item = data[i];
-                    $("#tableBody").append("<tr><td>" + item.order + "</td><td>" + item.name + "</td></tr>");
+                    $("#tableBody").append("<tr><td>" + new Date(item.timestamp).toLocaleString() + "</td><td>" + item.order + "</td><td>" + item.name + "</td></tr>");
                 }
                 $("#loader").hide();
                 $("#content").show();
@@ -76,7 +83,7 @@
           $("#status-messages").prepend($("<li>" + new Date().toTimeString().substr(0,8) + ": " + msg + "</li>"))
         }
 
-        $(document).ready(getTodayOrders);
+        $(document).ready(getAllOrders);
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
@@ -84,7 +91,7 @@
       var socket = io();
       socket.on('bestilling', function (msg) {
         $("#loader").show();
-        getTodayOrders();
+        getAllOrders();
 
         var messageObj = JSON.parse(msg);
         var messageText = messageObj.customer + " bestilte " + messageObj.orderItem;
