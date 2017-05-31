@@ -187,11 +187,11 @@ app.get('/tine-lunsj/todayOrders', function (req, res) {
 		} else {
 			for (var i = 0; i < items.length; i++) {
 			    ordersToday.push({
-                        name: items[i].customer._,
+                        key: items[i].RowKey._,
+			            name: items[i].customer._,
                         order: items[i].orderItem._,
                         price: items[i].orderPrice._,
                         timestamp: items[i].orderDate._,
-						key: items[i].RowKey._,
                         completed: items[i].orderCompleted._
                     }
                 );
@@ -244,6 +244,7 @@ app.get('/tine-lunsj/allOrders', function (req, res) {
         } else {
             for (var i = 0; i < items.length; i++) {
                 allOrders.push({
+                        key: items[i].RowKey._,
                         name: items[i].customer._,
                         order: items[i].orderItem._,
                         price: items[i].orderPrice._,

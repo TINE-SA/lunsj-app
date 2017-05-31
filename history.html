@@ -75,10 +75,12 @@
                 for(var i = 0; i < data.length; i++) {
                     var item = data[i];
                     if (Boolean(item.completed)) {
-                        $("#tableBody").append("<tr><td>" + new Date(item.timestamp).toLocaleString() + "</td><td>" + item.order + "</td><td>" + item.name + "</td><td>" + "<img class= 'img-responsive center-block' src='../yes.png' alt='Ja' style='width:16px;height:16px;'>" + "</td></tr>");
+                        $("#tableBody").append("<tr><td>" + new Date(item.timestamp).toLocaleString() + "</td><td>" + item.order + "</td><td>" + item.name + "</td><td>" + "<img class= 'img-responsive center-block' src='../yes.png' alt='Ja' style='width:24px;height:24px;'>" + "</td></tr>");
                     } else {
-                        $("#tableBody").append("<tr><td>" + new Date(item.timestamp).toLocaleString() + "</td><td>" + item.order + "</td><td>" + item.name + "</td><td>" + "<img class= 'img-responsive center-block' src='../no.png' alt='Nei' style='width:16px;height:16px;'>" + "</td></tr>");
+                        $("#tableBody").append("<tr><td>" + new Date(item.timestamp).toLocaleString() + "</td><td>" + item.order + "</td><td>" + item.name + "</td>"
+                            + "<td>" + "<form id='put-form-" + i + "'>" + "<input type='hidden' id='key' name='key' value='" + item.key +"'><button type='button' id='complete-button-" + i + "' class='btn btn-default' title='Marker at du har betalt.'><img src='../no.png' alt='Nei' style='width:24px;height:24px;'></button>" + "</form></td></tr>");
                     }
+                    $("#complete-button-" + i).on('click',xhrSend('PUT',i));
                 }
                 $("#loader").hide();
                 $("#content").show();
@@ -90,6 +92,25 @@
         }
 
         $(document).ready(getAllOrders);
+
+        function xhrSend(method,id) {
+            return function() {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    if (xhr.status == 200) {
+                        location.href = "/history.html";
+                    } else location.href = "/failure.html";
+                };
+                xhr.open(method, '/tine-lunsj/todayOrders', true);
+                var data;
+                if (method == 'PUT') {
+                    data = new FormData($("#put-form-"+id)[0]);
+                } else {
+                    data = new FormData($("#delete-form-"+id)[0]);
+                }
+                xhr.send(data);
+            }
+        }
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
