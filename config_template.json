@@ -3,5 +3,5 @@
   "STORAGE_KEY": "<storage access key>",
   "PARTITION_KEY_MENU": "Menu",
   "PARTITION_KEY_ORDER": "Order",
-  "TABLE_NAME": "lunsjapp"
+  "TABLE_NAME": "<your table name for local testing>"
 }

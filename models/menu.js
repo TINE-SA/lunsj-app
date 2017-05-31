@@ -28,6 +28,8 @@ function tableCreated(error,result) {
 function initializeTable() {
     var menuBatch = new azure.TableBatch();
     //TODO: move init menuItems file to azure filestorage?
+    //TODO: Maybe implement way to trigger reload of the file so you can update the menu by editing the file and reload it into the table?
+    this.storageClient.
     fs.readFile('menuItems.csv', 'utf8', function (error, data) {
         if (error) {
             console.log(error.toString());
@@ -74,8 +76,8 @@ Menu.prototype = {
         var itemDescriptor = {
             PartitionKey: entityGen.String(self.partitionKey),
             RowKey: entityGen.String(uuid()),
-            name: entityGen.String(item.name),
-            price: entityGen.String(item.price)
+            name: entityGen.String(item.newname),
+            price: entityGen.String(item.newprice)
         };
         self.storageClient.insertEntity(self.tableName, itemDescriptor, function entityInserted(error) {
             if(error){
@@ -86,58 +88,45 @@ Menu.prototype = {
         });
     },
 
-    editItemName: function(RKey,newName, callback) {
+
+    editItem: function(item, callback) {
         //TODO: add functionality to keep menuItems.csv (init file for menu table) up to date
         self = this;
-        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, entity, response) {
+        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, item.key, function entityQueried(error, entity, response) {
             if(error) {
+                console.log(error.toString());
                 callback(error);
+            } else {
+                entity['.metadata'].etag = response.headers.etag;
+                entity.price = item.newprice;
+                entity.name = item.newname;
+                self.storageClient.replaceEntity(self.tableName, entity, function entityUpdated(error) {
+                    if (error) {
+                        console.log(error.toString());
+                        callback(error);
+                    }
+                    callback(null);
+                });
             }
-            entity['.metadata'].etag = response['.metadata'].etag;
-            entity.name = newName;
-            self.storageClient.replaceEntity(self.tableName, entity, function entityUpdated(error) {
-                if(error) {
-                    console.log(error.toString());
-                    callback(error);
-                }
-                callback(null);
-            });
         });
     },
 
-    editItemPrice: function(RKey,newPrice, callback) {
+    removeItem: function(item, callback) {
         //TODO: add functionality to keep menuItems.csv (init file for menu table) up to date
         self = this;
-        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, entity, response) {
+        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, item.key, function entityQueried(error, entity) {
             if(error) {
+                console.log(error.toString());
                 callback(error);
+            } else {
+                self.storageClient.deleteEntity(self.tableName, entity, function entityRemoved(error) {
+                    if (error) {
+                        console.log(error.toString());
+                        callback(error);
+                    }
+                    callback(null);
+                });
             }
-            entity['.metadata'].etag = response['.metadata'].etag;
-            entity.price = newPrice;
-            self.storageClient.replaceEntity(self.tableName, entity, function entityUpdated(error) {
-                if(error) {
-                    console.log(error.toString());
-                    callback(error);
-                }
-                callback(null);
-            });
-        });
-    },
-
-    removeItem: function(RKey, callback) {
-        //TODO: add functionality to keep menuItems.csv (init file for menu table) up to date
-        self = this;
-        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, entity) {
-            if(error) {
-                callback(error);
-            }
-            self.storageClient.deleteEntity(self.tableName, entity, function entityRemoved(error) {
-                if(error) {
-                    console.log(error.toString());
-                    callback(error);
-                }
-                callback(null);
-            });
         });
     }
 

@@ -2,6 +2,8 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var multer = require('multer');
+var upload = multer();
 var fs = require('fs');
 var azure = require('azure-storage');
 var conf = require('nconf');
@@ -23,12 +25,20 @@ var menu = new Menu(azure.createTableService(accountName, accountKey), tableName
 var Orders = require('./models/orders');
 var orders = new Orders(azure.createTableService(accountName, accountKey), tableName, orderPartitionKey);
 
-function validReq(req) {
+function validOrderReq(req) {
 	return req && req.body && req.body.name && req.body.order && req.body.price;
 }
 
+function validCompleteOrDeleteOrderReq(req) {
+    return req && req.body && req.body.key;
+}
+
 function validMenuItemReq(req) {
-	return req && req.body && req.body.name && req.body.price;
+	return req && req.body && req.body.newname && req.body.newprice;
+}
+
+function validUpdateOrDeleteMenuItemReq(req) {
+    return validMenuItemReq(req) && req.body.key;
 }
 
 app.get('/tine-lunsj', function (req, res) {
@@ -36,8 +46,9 @@ app.get('/tine-lunsj', function (req, res) {
 });
 
 app.post('/tine-lunsj', function (req, res) {
-	if (!validReq(req)) {
-		res.sendFile(__dirname + '/failure.html');
+	if (!validOrderReq(req)) {
+		console.log('OrderRequest invalid!');
+	    res.sendFile(__dirname + '/failure.html');
 	} else {
 		var map = {
 			customer: req.body.name,
@@ -46,7 +57,8 @@ app.post('/tine-lunsj', function (req, res) {
 		};
 		orders.placeOrder(map, function orderPlaced(error) {
 				if (error) {
-                    res.sendFile(__dirname + '/failure.html');
+                    console.log('PlaceOrder failed!');
+				    res.sendFile(__dirname + '/failure.html');
 				} else {
                     io.emit('bestilling', JSON.stringify(map));
 				    console.log(new Date().toLocaleString(),', ny bestilling: ', JSON.stringify(map));
@@ -57,32 +69,8 @@ app.post('/tine-lunsj', function (req, res) {
 	}
 });
 
-app.get('/tine-lunsj/menuItem', function (req, res) {
-	res.sendFile(__dirname + '/menuItem.html');
-});
-
-app.post('/tine-lunsj/menuItem', function (req, res) {
-	if (!validMenuItemReq(req)) {
-		res.sendFile(__dirname + '/menuItemFailure.html');
-	} else {
-		var map = {
-            name: req.body.name,
-			price: req.body.price
-		};
-		menu.addItem(map, function menuItemAdded(error) {
-			 	if (error) {
-               	  	res.sendFile(__dirname + '/menuItemFailure.html');
-			 	} else {
-                    console.log(new Date().toLocaleString(),', ny rett i meny : ', JSON.stringify(map));
-			 		res.sendFile(__dirname + '/menuItemSuccess.html');
-			 	}
-			}
-		);
-	}
-});
-
 app.get('/tine-lunsj/today', function (req, res) {
-	res.sendFile(__dirname + '/today.html');
+    res.sendFile(__dirname + '/today.html');
 });
 
 app.get('/tine-lunsj/history', function (req, res) {
@@ -90,22 +78,94 @@ app.get('/tine-lunsj/history', function (req, res) {
 });
 
 app.get('/tine-lunsj/todayPayments', function (req, res) {
-	res.sendFile(__dirname + '/todayPayments.html');
+    res.sendFile(__dirname + '/todayPayments.html');
+});
+
+app.get('/tine-lunsj/menuItem', function (req, res) {
+	res.sendFile(__dirname + '/menuItem.html');
+});
+
+app.post('/tine-lunsj/menuItem', upload.array(), function (req, res) {
+	if (!validMenuItemReq(req)) {
+		console.log('AddMenuItemRequest invalid!')
+	    res.sendStatus(500);
+	} else {
+		var map = {
+            oldname: req.body.oldname,
+            key: req.body.key,
+            newname: req.body.newname,
+            newprice: req.body.newprice
+		};
+		menu.addItem(map, function menuItemAdded(error) {
+            if (error) {
+                console.log('addItem failed: ', error.toString());
+                res.sendStatus(500);
+            } else {
+                console.log(new Date().toLocaleString(),', ny rett i meny : ', JSON.stringify(map));
+                res.sendStatus(200);
+            }
+        });
+	}
+});
+
+app.put('/tine-lunsj/menuItem', upload.array(), function (req, res) {
+    if (!validUpdateOrDeleteMenuItemReq(req)) {
+        console.log('UpdateMenuItemRequest invalid!');
+        res.sendStatus(500);
+    } else {
+        var map = {
+            oldname: req.body.oldname,
+            key: req.body.key,
+            newname: req.body.newname,
+            newprice: req.body.newprice
+        };
+        menu.editItem(map, function menuItemUpdated (error) {
+            if (error) {
+                console.log('editItem failed: ', error.toString());
+                res.sendStatus(500);
+            } else {
+                console.log(new Date().toLocaleString(),', endret rett i meny : ', JSON.stringify(map));
+                res.sendStatus(200);
+            }
+        });
+    }
+});
+
+app.delete('/tine-lunsj/menuItem', upload.array(), function (req, res) {
+    if (!validUpdateOrDeleteMenuItemReq(req)) {
+        console.log('DeleteMenuItemRequest invalid!');
+        res.sendStatus(500);
+    } else {
+        var map = {
+            oldname: req.body.oldname,
+            key: req.body.key,
+            newname: req.body.newname,
+            newprice: req.body.newprice
+        };
+        menu.removeItem(map, function menuItemDeleted (error) {
+            if (error) {
+                console.log('removeItem failed: ', error.toString());
+                res.sendStatus(500);
+            } else {
+                console.log(new Date().toLocaleString(),', slettet rett i meny : ', JSON.stringify(map));
+                res.sendStatus(200);
+            }
+        });
+    }
 });
 
 app.get('/tine-lunsj/menuItems', function (req, res) {
-	//TODO: need to change to return actual items with keys etc. before implementing edit/remove functions
 	var menuItems = [];
     var query = new azure.TableQuery().where('PartitionKey eq ?', menuPartitionKey);
 	menu.findItems(query, function entitiesQueried (error, items) {
 		  if (error) {
-		  	  console.log(error.toString());
 		      res.sendFile(__dirname + '/menuItemFailure.html');
 		  } else {
 		  		for (var i = 0; i < items.length ; i++) {
-		  		    menuItems.push({
+		  			menuItems.push({
 		  				name: items[i].name._,
-						price: items[i].price._
+						price: items[i].price._,
+						key: items[i].RowKey._
 					});
 				}
                 res.send(menuItems);
@@ -115,7 +175,6 @@ app.get('/tine-lunsj/menuItems', function (req, res) {
 });
 
 app.get('/tine-lunsj/todayOrders', function (req, res) {
-    //TODO: need to change to return actual items with keys etc. before implementing edit/remove functions
 	var ordersToday = [];
 	var today = new Date();
 	today.setHours(0,0,0,0);
@@ -127,17 +186,53 @@ app.get('/tine-lunsj/todayOrders', function (req, res) {
 			res.sendFile(__dirname + '/failure.html');
 		} else {
 			for (var i = 0; i < items.length; i++) {
-				ordersToday.push({
+			    ordersToday.push({
                         name: items[i].customer._,
                         order: items[i].orderItem._,
                         price: items[i].orderPrice._,
-                        timestamp: items[i].orderDate._
+                        timestamp: items[i].orderDate._,
+						key: items[i].RowKey._,
+                        completed: items[i].orderCompleted._
                     }
                 );
 		  	}
             res.send(ordersToday);
 		}
 	});
+});
+
+app.put('/tine-lunsj/todayOrders', upload.array(), function (req, res) {
+    if (!validCompleteOrDeleteOrderReq(req)) {
+        console.log('CompleteOrderRequest invalid!');
+        res.sendStatus(500);
+    } else {
+        orders.completeOrder(req.body.key, function orderCompleted (error) {
+    		if (error) {
+                console.log('completeOrder failed: ', error.toString());
+                res.sendStatus(500);
+			} else {
+                console.log(new Date().toLocaleString(),', satt ordre betalt : ', req.body.key);
+                res.sendStatus(200);
+			}
+		});
+	}
+});
+
+app.delete('/tine-lunsj/todayOrders', upload.array(), function (req, res) {
+    if (!validCompleteOrDeleteOrderReq(req)) {
+        console.log('DeleteOrderRequest invalid!');
+        res.sendStatus(500);
+    } else {
+        orders.removeOrder(req.body.key, function orderDeleted (error) {
+            if (error) {
+                console.log('removeOrder failed: ', error.toString());
+                res.sendStatus(500);
+            } else {
+                console.log(new Date().toLocaleString(),', slettet ordre : ', req.body.key);
+                res.sendStatus(200);
+            }
+        });
+    }
 });
 
 app.get('/tine-lunsj/allOrders', function (req, res) {
@@ -152,7 +247,8 @@ app.get('/tine-lunsj/allOrders', function (req, res) {
                         name: items[i].customer._,
                         order: items[i].orderItem._,
                         price: items[i].orderPrice._,
-                        timestamp: items[i].orderDate._
+                        timestamp: items[i].orderDate._,
+                        completed: items[i].orderCompleted._
                     }
                 );
             }

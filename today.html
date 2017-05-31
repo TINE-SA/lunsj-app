@@ -3,7 +3,7 @@
     <head>
         <title>Tine-lunsj!</title>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <style>
     		body {
     			max-width: 650px;
@@ -42,12 +42,16 @@
         <div id="content">
             <h2>Fredagslønsj!</h2>
             <table class="table table-striped table-bordered">
-                <col width="70%">
-                <col width="30%">
+                <col width="55%">
+                <col width="25%">
+                <col width="10%">
+                <col width="10%">
                 <thead>
                   <tr class="info">
                     <th>Hva</th>
                     <th>Hvem</th>
+                    <th>Betalt?</th>
+                    <th>Angre</th>
                   </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -65,7 +69,17 @@
               $("#tableBody").empty();
                 for(var i = 0; i < data.length; i++) {
                     var item = data[i];
-                    $("#tableBody").append("<tr><td>" + item.order + "</td><td>" + item.name + "</td></tr>");
+                    if (Boolean(item.completed)) {
+                        $("#tableBody").append("<tr><td>" + item.order + "</td><td>" + item.name + "</td>"
+                            + "<td><img class= 'img-responsive center-block' src='../yes.png' alt='Ja' title='Good job!' style='width:24px;height:24px;'></td>"
+                            + "<td><form id='put-form-" + i + "'>" + "<input type='hidden' id='key' name='key' value='" + item.key +"'><button type='button' id='complete-button-" + i + "' title='Angre betaling.'><img src='../no.png' alt='Nei' style='width:24px;height:24px;'></button></form></td></tr>");
+                    } else {
+                        $("#tableBody").append("<tr><td>" + item.order + "</td><td>" + item.name + "</td>"
+                            + "<td><form id='put-form-" + i + "'>" + "<input type='hidden' id='key' name='key' value='" + item.key +"'><button type='button' id='complete-button-" + i + "' class='btn btn-default' title='Marker at du har betalt.'><img src='../no.png' alt='Nei' style='width:24px;height:24px;'></button>" + "</form></td>"
+                            + "<td><form id='delete-form-" + i + "'>" + "<input type='hidden' id='key' name='key' value='" + item.key +"'><button type='button' id='delete-button-" + i + "' class='btn btn-default' title='Angre bestilling.'>Slett!</button></form></td></tr>");
+                    }
+                    $("#complete-button-" + i).on('click',xhrSend('PUT',i));
+                    $("#delete-button-" + i).on('click',xhrSend('DELETE',i));
                 }
                 $("#loader").hide();
                 $("#content").show();
@@ -77,6 +91,25 @@
         }
 
         $(document).ready(getTodayOrders);
+
+        function xhrSend(method,id) {
+            return function() {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    if (xhr.status == 200) {
+                        location.href = "/today.html";
+                    } else location.href = "/failure.html";
+                };
+                xhr.open(method, '/tine-lunsj/todayOrders', true);
+                var data;
+                if (method == 'PUT') {
+                    data = new FormData($("#put-form-"+id)[0]);
+                } else {
+                    data = new FormData($("#delete-form-"+id)[0]);
+                }
+                xhr.send(data);
+            }
+        }
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>

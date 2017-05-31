@@ -44,59 +44,64 @@ Orders.prototype = {
         });
     },
 
-    editOrder: function(RKey, newOrder, callback) {
-        self = this;
-        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, entity, response) {
-            if(error) {
-                callback(error);
-            }
-            entity['.metadata'].etag = response['.metadata'].etag;
-            entity.orderItem = newOrder.orderItem;
-            entity.orderDate = new Date().toLocaleString();
-            entity.orderPrice = newOrder.orderPrice;
-            self.storageClient.replaceEntity(self.tableName, entity, function entityUpdated(error) {
-                if(error) {
-                    console.log(error.toString());
-                    callback(error);
-                }
-                callback(null);
-            });
-        });
-    },
-
     completeOrder: function(RKey, callback) {
         self = this;
-        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, entity, response) {
+        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, result, response) {
             if(error) {
                 callback(error);
+            } else {
+                result['.metadata'].etag = response.headers.etag;
+                result.orderCompleted = entityGen.Boolean(!result.orderCompleted._);
+                self.storageClient.replaceEntity(self.tableName, result, function entityUpdated(error) {
+                    if (error) {
+                        console.log(error.toString());
+                        callback(error);
+                    }
+                    callback(null);
+                });
             }
-            entity['.metadata'].etag = response['.metadata'].etag;
-            entity.orderCompleted = entityGen.Boolean(true);
-            self.storageClient.replaceEntity(self.tableName, entity, function entityUpdated(error) {
-                if(error) {
-                    console.log(error.toString());
-                    callback(error);
-                }
-                callback(null);
-            });
         });
     },
 
     removeOrder: function(RKey, callback) {
         self = this;
-        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, entity) {
+        self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, result) {
             if(error) {
                 console.log(error.toString());
                 callback(error);
+            } else {
+                self.storageClient.deleteEntity(self.tableName, result, function entityRemoved(error) {
+                    if (error) {
+                        console.log(error.toString());
+                        callback(error);
+                    }
+                    callback(null);
+                });
             }
-            self.storageClient.deleteEntity(self.tableName, entity, function entityRemoved(error) {
-                if(error) {
-                    console.log(error.toString());
-                    callback(error);
-                }
-                callback(null);
-            });
         });
     }
 
 }
+
+/* Should be ok, but not used yet, functionality handled by deleting your order and submitting a new one
+ editOrder: function(RKey, newOrder, callback) {
+ self = this;
+ self.storageClient.retrieveEntity(self.tableName, self.partitionKey, RKey, function entityQueried(error, result, response) {
+ if(error) {
+ callback(error);
+ } else {
+ result['.metadata'].etag = response.headers.etag;
+ result.orderItem = newOrder.orderItem;
+ result.orderDate = new Date();
+ result.orderPrice = newOrder.orderPrice;
+ self.storageClient.replaceEntity(self.tableName, result, function entityUpdated(error) {
+ if (error) {
+ console.log(error.toString());
+ callback(error);
+ }
+ callback(null);
+ });
+ }
+ });
+ },
+ */
