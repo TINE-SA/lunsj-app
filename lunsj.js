@@ -17,6 +17,7 @@ conf.env()
 var tableName = conf.get("TABLE_NAME");
 var menuPartitionKey = conf.get("PARTITION_KEY_MENU");
 var orderPartitionKey = conf.get("PARTITION_KEY_ORDER");
+var driverPartitionKey = conf.get("PARTITION_KEY_DRIVER");
 var accountName = conf.get("STORAGE_NAME");
 var accountKey = conf.get("STORAGE_KEY");
 
@@ -24,6 +25,8 @@ var Menu = require('./models/menu');
 var menu = new Menu(azure.createTableService(accountName, accountKey), tableName, menuPartitionKey);
 var Orders = require('./models/orders');
 var orders = new Orders(azure.createTableService(accountName, accountKey), tableName, orderPartitionKey);
+var Drivers = require('./models/drivers');
+var drivers = new Drivers(azure.createTableService(accountName, accountKey), tableName, driverPartitionKey);
 
 function validOrderReq(req) {
 	return req && req.body && req.body.name && req.body.order && req.body.price;
