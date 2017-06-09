@@ -67,7 +67,12 @@
         function getTodayOrders() {
             $.get("/tine-lunsj/todayOrders", function( data ) {
               $("#tableBody").empty();
-                for(var i = 0; i < data.length; i++) {
+                data.sort(function(a, b){
+                    var x = new Date(a.timestamp);
+                    var y = new Date(b.timestamp);
+                    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                });
+              for(var i = 0; i < data.length; i++) {
                     var item = data[i];
                     if (Boolean(item.completed)) {
                         $("#tableBody").append("<tr><td>" + item.order + "</td><td>" + item.name + "</td>"

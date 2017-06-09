@@ -64,7 +64,7 @@ app.post('/tine-lunsj', function (req, res) {
 				    res.sendFile(__dirname + '/failure.html');
 				} else {
                     io.emit('bestilling', JSON.stringify(map));
-				    console.log(new Date().toLocaleString(),', ny bestilling: ', JSON.stringify(map));
+				    console.log(new Date().toLocaleString(),', ny ordre: ', JSON.stringify(map));
                     res.sendFile(__dirname + '/success.html');
 				}
 			}
@@ -214,7 +214,7 @@ app.put('/tine-lunsj/todayOrders', upload.array(), function (req, res) {
                 console.log('completeOrder failed: ', error.toString());
                 res.sendStatus(500);
 			} else {
-                console.log(new Date().toLocaleString(),', satt ordre betalt : ', req.body.key);
+                console.log(new Date().toLocaleString(),', flippet ordre betalt flagg : ', req.body.key);
                 res.sendStatus(200);
 			}
 		});
