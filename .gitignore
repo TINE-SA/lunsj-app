@@ -34,3 +34,8 @@ node_modules
 
 #Azure storage parrameters for local use only
 azure_config.json
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
